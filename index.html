@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Met or Not</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .arena {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    background: #151515;
+  }
+
+  .card:hover {
+    transform: scale(1.03);
+    border-color: #e74c3c;
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.3);
+  }
+
+  .card img {
+    display: block;
+    width: 420px;
+    height: 560px;
+    object-fit: cover;
+  }
+
+  .vs {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e74c3c;
+  }
+
+  .winner-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .winner-screen h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #e74c3c;
+  }
+
+  .winner-screen img {
+    width: 450px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 3px solid #e74c3c;
+    box-shadow: 0 0 40px rgba(231, 76, 60, 0.4);
+  }
+
+  .winner-name {
+    margin-top: 1rem;
+    font-size: 1.3rem;
+    color: #ccc;
+  }
+
+  button {
+    margin-top: 1.2rem;
+    padding: 0.7rem 1.8rem;
+    font-size: 0.95rem;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover { background: #c0392b; }
+
+  .btn-secondary {
+    background: #333;
+  }
+
+  .btn-secondary:hover { background: #444; }
+
+  .btn-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 1.2rem;
+    left: 1.2rem;
+    background: #222;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .back-btn:hover { background: #333; color: #fff; }
+  .back-btn:disabled { opacity: 0.3; cursor: default; }
+  .back-btn:disabled:hover { background: #222; color: #aaa; }
+
+  .setup-msg {
+    color: #666;
+    font-size: 1.1rem;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .card-label {
+    text-align: center;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    background: #151515;
+  }
+
+  .rankings {
+    display: none;
+    width: 100%;
+    max-width: 500px;
+    margin-top: 1.5rem;
+  }
+
+  .rankings h3 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #888;
+  }
+
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .rank-pos {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e74c3c;
+    width: 2rem;
+    text-align: center;
+  }
+
+  .rank-pos.gold { color: #f1c40f; }
+  .rank-pos.silver { color: #bdc3c7; }
+  .rank-pos.bronze { color: #e67e22; }
+
+  .rank-thumb {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  .rank-name {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #ccc;
+  }
+
+  .rank-wins {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  @media (max-width: 700px) {
+    .arena { flex-direction: column; gap: 1rem; }
+    .card img { width: 300px; height: 400px; }
+    .vs { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<button class="back-btn" id="back-btn" onclick="goBack()" disabled>← Undo</button>
+
+<h1>Met or Not</h1>
+<p class="subtitle">Pick your favorite. Last one standing wins.</p>
+<p class="progress" id="progress"></p>
+
+<div class="arena" id="arena">
+  <div class="setup-msg" id="setup-msg">
+    Loading images from <code>images/</code> folder...
+  </div>
+</div>
+
+<div class="winner-screen" id="winner-screen">
+  <h2>Winner!</h2>
+  <img id="winner-img" src="" alt="Winner">
+  <p class="winner-name" id="winner-name"></p>
+  <div class="btn-row">
+    <button class="btn-secondary" onclick="goBack()">← Undo</button>
+    <button onclick="restart()">Play Again</button>
+  </div>
+</div>
+
+<div class="rankings" id="rankings"></div>
+
+<script>
+  const IMAGES = [];
+
+  let pool = [];
+  let current = null;
+  let history = [];
+  let roundSurvived = {};
+
+  function prettifyName(filename) {
+    return filename
+      .replace(/\.[^.]+$/, '')
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  async function loadImages() {
+    try {
+      const resp = await fetch('images/');
+      const text = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const links = doc.querySelectorAll('a');
+      links.forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(href)) {
+          const name = decodeURIComponent(href.replace(/.*\//, ''));
+          if (!IMAGES.includes(name)) IMAGES.push(name);
+        }
+      });
+    } catch (e) {}
+
+    if (IMAGES.length < 2) {
+      document.getElementById('setup-msg').innerHTML =
+        'Add at least 2 images to the <code>images/</code> folder, then refresh.<br>' +
+        'Tip: run <code>python3 -m http.server</code> from this folder.';
+      document.getElementById('back-btn').style.display = 'none';
+      return;
+    }
+
+    start();
+  }
+
+  function start() {
+    pool = [...IMAGES];
+    shuffle(pool);
+    current = null;
+    history = [];
+    roundSurvived = {};
+    IMAGES.forEach(img => roundSurvived[img] = 0);
+    document.getElementById('winner-screen').style.display = 'none';
+    document.getElementById('rankings').style.display = 'none';
+    document.getElementById('arena').style.display = 'flex';
+    updateBackBtn();
+    nextRound();
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function nextRound() {
+    if (pool.length === 0 && current) {
+      showWinner(current);
+      return;
+    }
+
+    if (!current) {
+      current = pool.pop();
+    }
+
+    const challenger = pool.pop();
+    updateProgress();
+    renderMatchup(current, challenger);
+  }
+
+  function updateProgress() {
+    const remaining = pool.length + 2;
+    const total = IMAGES.length;
+    const eliminated = total - remaining;
+    const round = history.length + 1;
+    document.getElementById('progress').textContent =
+      `Round ${round} · ${remaining} remaining · ${eliminated} eliminated`;
+  }
+
+  function renderMatchup(a, b) {
+    const arena = document.getElementById('arena');
+    arena.innerHTML = `
+      <div class="card" onclick="pick('${esc(a)}', '${esc(b)}')">
+        <img src="images/${encodeURIComponent(a)}" alt="${esc(a)}">
+        <div class="card-label">${prettifyName(a)}</div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="card" onclick="pick('${esc(b)}', '${esc(a)}')">
+        <img src="images/${encodeURIComponent(b)}" alt="${esc(b)}">
+        <div class="card-label">${prettifyName(b)}</div>
+      </div>
+    `;
+  }
+
+  function esc(s) {
+    return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  function pick(winner, loser) {
+    history.push({
+      current: current,
+      pool: [...pool],
+      winner: winner,
+      loser: loser,
+      roundSurvived: { ...roundSurvived }
+    });
+
+    roundSurvived[winner] = (roundSurvived[winner] || 0) + 1;
+
+    current = winner;
+    updateBackBtn();
+    nextRound();
+  }
+
+  function goBack() {
+    if (history.length === 0) return;
+
+    const prev = history.pop();
+    current = prev.current;
+    pool = prev.pool;
+    roundSurvived = prev.roundSurvived;
+
+    document.getElementById('winner-screen').style.display = 'none';
+    document.getElementById('rankings').style.display = 'none';
+    document.getElementById('arena').style.display = 'flex';
+
+    updateBackBtn();
+    updateProgress();
+    renderMatchup(prev.winner, prev.loser);
+  }
+
+  function updateBackBtn() {
+    document.getElementById('back-btn').disabled = history.length === 0;
+  }
+
+  function showWinner(img) {
+    document.getElementById('arena').style.display = 'none';
+    const screen = document.getElementById('winner-screen');
+    screen.style.display = 'flex';
+    document.getElementById('winner-img').src = 'images/' + encodeURIComponent(img);
+    document.getElementById('winner-name').textContent = prettifyName(img);
+    document.getElementById('progress').textContent = '';
+
+    showRankings(img);
+  }
+
+  function showRankings(winner) {
+    const ranked = IMAGES
+      .map(img => ({
+        img,
+        wins: img === winner ? (roundSurvived[img] || 0) + 1 : roundSurvived[img] || 0
+      }))
+      .sort((a, b) => b.wins - a.wins);
+
+    const container = document.getElementById('rankings');
+    let html = '<h3>Final Rankings</h3>';
+
+    ranked.forEach((entry, i) => {
+      const pos = i + 1;
+      let posClass = '';
+      if (pos === 1) posClass = 'gold';
+      else if (pos === 2) posClass = 'silver';
+      else if (pos === 3) posClass = 'bronze';
+
+      html += `
+        <div class="rank-item">
+          <div class="rank-pos ${posClass}">#${pos}</div>
+          <img class="rank-thumb" src="images/${encodeURIComponent(entry.img)}" alt="">
+          <div class="rank-name">${prettifyName(entry.img)}</div>
+          <div class="rank-wins">${entry.wins} win${entry.wins !== 1 ? 's' : ''}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+  }
+
+  function restart() {
+    start();
+  }
+
+  loadImages();
+</script>
+
+</body>
+</html>
