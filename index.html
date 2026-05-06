@@ -36,8 +36,39 @@
     margin-bottom: 1.2rem;
   }
 
-  .arena {
+  .mode-select {
     display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .mode-btn {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.1rem;
+    background: #181818;
+    color: #ccc;
+    border: 2px solid #333;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .mode-btn:hover {
+    border-color: #e74c3c;
+    color: #fff;
+    background: #1a1a1a;
+  }
+
+  .mode-btn small {
+    display: block;
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .arena {
+    display: none;
     gap: 2rem;
     align-items: center;
     justify-content: center;
@@ -73,20 +104,28 @@
 
   .winner-screen {
     display: none;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3rem;
+  }
+
+  .winner-left {
+    display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .winner-screen h2 {
+  .winner-left h2 {
     font-size: 2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: #e74c3c;
   }
 
-  .winner-screen img {
-    width: 450px;
-    height: 600px;
+  .winner-left img {
+    width: 400px;
+    height: 540px;
     object-fit: cover;
     border-radius: 12px;
     border: 3px solid #e74c3c;
@@ -94,13 +133,18 @@
   }
 
   .winner-name {
-    margin-top: 1rem;
+    margin-top: 0.8rem;
     font-size: 1.3rem;
     color: #ccc;
   }
 
-  button {
+  .btn-row {
+    display: flex;
+    gap: 1rem;
     margin-top: 1.2rem;
+  }
+
+  button {
     padding: 0.7rem 1.8rem;
     font-size: 0.95rem;
     background: #e74c3c;
@@ -119,12 +163,6 @@
 
   .btn-secondary:hover { background: #444; }
 
-  .btn-row {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-
   .back-btn {
     position: fixed;
     top: 1.2rem;
@@ -137,6 +175,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
+    margin: 0;
   }
 
   .back-btn:hover { background: #333; color: #fff; }
@@ -156,27 +195,31 @@
     font-size: 0.9rem;
     color: #aaa;
     background: #151515;
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .rankings {
-    display: none;
-    width: 100%;
-    max-width: 500px;
-    margin-top: 1.5rem;
+  .winner-right {
+    display: flex;
+    flex-direction: column;
+    min-width: 280px;
+    max-width: 320px;
   }
 
-  .rankings h3 {
-    text-align: center;
+  .winner-right h3 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     color: #888;
+    text-align: center;
   }
 
   .rank-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.6rem 1rem;
+    gap: 0.8rem;
+    padding: 0.55rem 0.8rem;
     border-bottom: 1px solid #1a1a1a;
   }
 
@@ -186,6 +229,7 @@
     color: #e74c3c;
     width: 2rem;
     text-align: center;
+    flex-shrink: 0;
   }
 
   .rank-pos.gold { color: #f1c40f; }
@@ -193,63 +237,85 @@
   .rank-pos.bronze { color: #e67e22; }
 
   .rank-thumb {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
     border-radius: 6px;
     object-fit: cover;
+    flex-shrink: 0;
   }
 
   .rank-name {
     flex: 1;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #ccc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .rank-wins {
     font-size: 0.8rem;
     color: #666;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 900px) {
+    .winner-screen { flex-direction: column; align-items: center; }
+    .winner-right { margin-top: 1.5rem; }
   }
 
   @media (max-width: 700px) {
     .arena { flex-direction: column; gap: 1rem; }
     .card img { width: 300px; height: 400px; }
     .vs { font-size: 1.4rem; }
+    .mode-select { flex-direction: column; }
   }
 </style>
 </head>
 <body>
 
-<button class="back-btn" id="back-btn" onclick="goBack()" disabled>← Undo</button>
+<button class="back-btn" id="back-btn" onclick="goBack()" disabled style="display:none">← Undo</button>
 
 <h1>Met or Not</h1>
 <p class="subtitle">Pick your favorite. Last one standing wins.</p>
 <p class="progress" id="progress"></p>
 
-<div class="arena" id="arena">
-  <div class="setup-msg" id="setup-msg">
-    Loading images from <code>images/</code> folder...
+<div id="mode-screen">
+  <div class="mode-select">
+    <div class="mode-btn" onclick="startGame('quick')">
+      Quick
+      <small>50 images · ~49 rounds</small>
+    </div>
+    <div class="mode-btn" onclick="startGame('full')">
+      Full
+      <small id="full-count">All images</small>
+    </div>
   </div>
 </div>
+
+<div class="arena" id="arena"></div>
 
 <div class="winner-screen" id="winner-screen">
-  <h2>Winner!</h2>
-  <img id="winner-img" src="" alt="Winner">
-  <p class="winner-name" id="winner-name"></p>
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="goBack()">← Undo</button>
-    <button onclick="restart()">Play Again</button>
+  <div class="winner-left">
+    <h2>Winner!</h2>
+    <img id="winner-img" src="" alt="Winner">
+    <p class="winner-name" id="winner-name"></p>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goBack()">← Undo</button>
+      <button onclick="showModeScreen()">Play Again</button>
+    </div>
   </div>
+  <div class="winner-right" id="rankings"></div>
 </div>
 
-<div class="rankings" id="rankings"></div>
-
 <script>
-  const IMAGES = [];
-
+  let ALL_IMAGES = [];
+  let gameImages = [];
   let pool = [];
   let current = null;
   let history = [];
   let roundSurvived = {};
+  let mode = 'full';
 
   function prettifyName(filename) {
     return filename
@@ -261,34 +327,17 @@
   async function loadImages() {
     try {
       const resp = await fetch('images.json');
-      const files = await resp.json();
-      files.forEach(name => {
-        if (!IMAGES.includes(name)) IMAGES.push(name);
-      });
+      ALL_IMAGES = await resp.json();
     } catch (e) {}
 
-    if (IMAGES.length < 2) {
-      document.getElementById('setup-msg').innerHTML =
-        'Could not load images. Make sure <code>images.json</code> exists.';
-      document.getElementById('back-btn').style.display = 'none';
+    if (ALL_IMAGES.length < 2) {
+      document.getElementById('mode-screen').innerHTML =
+        '<p class="setup-msg">Could not load images. Make sure <code>images.json</code> exists.</p>';
       return;
     }
 
-    start();
-  }
-
-  function start() {
-    pool = [...IMAGES];
-    shuffle(pool);
-    current = null;
-    history = [];
-    roundSurvived = {};
-    IMAGES.forEach(img => roundSurvived[img] = 0);
-    document.getElementById('winner-screen').style.display = 'none';
-    document.getElementById('rankings').style.display = 'none';
-    document.getElementById('arena').style.display = 'flex';
-    updateBackBtn();
-    nextRound();
+    document.getElementById('full-count').textContent =
+      `${ALL_IMAGES.length} images · ${ALL_IMAGES.length - 1} rounds`;
   }
 
   function shuffle(arr) {
@@ -296,6 +345,40 @@
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+  }
+
+  function startGame(selectedMode) {
+    mode = selectedMode;
+
+    if (mode === 'quick') {
+      const shuffled = [...ALL_IMAGES];
+      shuffle(shuffled);
+      gameImages = shuffled.slice(0, 50);
+    } else {
+      gameImages = [...ALL_IMAGES];
+    }
+
+    pool = [...gameImages];
+    shuffle(pool);
+    current = null;
+    history = [];
+    roundSurvived = {};
+    gameImages.forEach(img => roundSurvived[img] = 0);
+
+    document.getElementById('mode-screen').style.display = 'none';
+    document.getElementById('winner-screen').style.display = 'none';
+    document.getElementById('arena').style.display = 'flex';
+    document.getElementById('back-btn').style.display = '';
+    updateBackBtn();
+    nextRound();
+  }
+
+  function showModeScreen() {
+    document.getElementById('arena').style.display = 'none';
+    document.getElementById('winner-screen').style.display = 'none';
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('mode-screen').style.display = '';
+    document.getElementById('progress').textContent = '';
   }
 
   function nextRound() {
@@ -315,7 +398,7 @@
 
   function updateProgress() {
     const remaining = pool.length + 2;
-    const total = IMAGES.length;
+    const total = gameImages.length;
     const eliminated = total - remaining;
     const round = history.length + 1;
     document.getElementById('progress').textContent =
@@ -351,7 +434,6 @@
     });
 
     roundSurvived[winner] = (roundSurvived[winner] || 0) + 1;
-
     current = winner;
     updateBackBtn();
     nextRound();
@@ -366,7 +448,6 @@
     roundSurvived = prev.roundSurvived;
 
     document.getElementById('winner-screen').style.display = 'none';
-    document.getElementById('rankings').style.display = 'none';
     document.getElementById('arena').style.display = 'flex';
 
     updateBackBtn();
@@ -380,6 +461,7 @@
 
   function showWinner(img) {
     document.getElementById('arena').style.display = 'none';
+    document.getElementById('back-btn').style.display = '';
     const screen = document.getElementById('winner-screen');
     screen.style.display = 'flex';
     document.getElementById('winner-img').src = 'images/' + encodeURIComponent(img);
@@ -390,15 +472,18 @@
   }
 
   function showRankings(winner) {
-    const ranked = IMAGES
+    const topN = mode === 'quick' ? 5 : 10;
+
+    const ranked = gameImages
       .map(img => ({
         img,
         wins: img === winner ? (roundSurvived[img] || 0) + 1 : roundSurvived[img] || 0
       }))
-      .sort((a, b) => b.wins - a.wins);
+      .sort((a, b) => b.wins - a.wins)
+      .slice(0, topN);
 
     const container = document.getElementById('rankings');
-    let html = '<h3>Final Rankings</h3>';
+    let html = `<h3>Top ${topN}</h3>`;
 
     ranked.forEach((entry, i) => {
       const pos = i + 1;
@@ -418,11 +503,6 @@
     });
 
     container.innerHTML = html;
-    container.style.display = 'block';
-  }
-
-  function restart() {
-    start();
   }
 
   loadImages();
