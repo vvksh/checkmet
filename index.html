@@ -304,7 +304,7 @@
   <div class="mode-select">
     <div class="mode-btn" onclick="startGame('quick')">
       Quick
-      <small>50 images · ~49 rounds</small>
+      <small>30 images · ~29 rounds</small>
     </div>
     <div class="mode-btn" onclick="startGame('full')">
       Full
@@ -373,7 +373,7 @@
     if (mode === 'quick') {
       const shuffled = [...ALL_IMAGES];
       shuffle(shuffled);
-      gameImages = shuffled.slice(0, 50);
+      gameImages = shuffled.slice(0, 30);
     } else {
       gameImages = [...ALL_IMAGES];
     }
