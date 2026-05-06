@@ -259,6 +259,26 @@
     flex-shrink: 0;
   }
 
+  .share-row {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+    justify-content: center;
+  }
+
+  .share-btn {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.85rem;
+    background: #222;
+    color: #ccc;
+    border: 1px solid #333;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .share-btn:hover { background: #333; color: #fff; }
+
   @media (max-width: 900px) {
     .winner-screen { flex-direction: column; align-items: center; }
     .winner-right { margin-top: 1.5rem; }
@@ -501,10 +521,18 @@
           <div class="rank-pos ${posClass}">#${pos}</div>
           <img class="rank-thumb" src="images/${encodeURIComponent(entry.img)}" alt="">
           <div class="rank-name">${prettifyName(entry.img)}</div>
-          <div class="rank-wins">${entry.wins} win${entry.wins !== 1 ? 's' : ''}</div>
+          <div class="rank-wins">${pos === 1 ? '👑 Winner' : entry.wins + ' win' + (entry.wins !== 1 ? 's' : '')}</div>
         </div>
       `;
     });
+
+    const shareText = encodeURIComponent(`My Check Met winner: ${prettifyName(winner)}! 🏆\nhttps://vvksh.github.io/metornot`);
+    html += `
+      <div class="share-row">
+        <a href="https://twitter.com/intent/tweet?text=${shareText}" target="_blank" class="share-btn">Share on 𝕏</a>
+        <a href="https://www.instagram.com/" target="_blank" class="share-btn">Share on IG</a>
+      </div>
+    `;
 
     container.innerHTML = html;
   }
