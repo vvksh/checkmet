@@ -526,11 +526,12 @@
       `;
     });
 
-    const shareText = encodeURIComponent(`My Check Met winner: ${prettifyName(winner)}! 🏆\nhttps://vvksh.github.io/metornot`);
+    const shareText = `My Check Met winner: ${prettifyName(winner)}! 🏆\nhttps://viveks.xyz/checkmet/`;
+    const linkedInText = `Thrilled to announce my Check Met winner: ${prettifyName(winner)}! 🏆 After careful deliberation across ${gameImages.length} candidates, I'm proud to share my top pick. #CheckMet #MetGala #Leadership #Grateful #ThoughtLeader #FashionForward #PersonalBrand #AlwaysBeLearning #Networking #CultureMatters #Innovation\nhttps://viveks.xyz/checkmet/`;
     html += `
       <div class="share-row">
-        <a href="https://twitter.com/intent/tweet?text=${shareText}" target="_blank" class="share-btn">Share on 𝕏</a>
-        <a href="https://www.instagram.com/" target="_blank" class="share-btn">Share on IG</a>
+        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn">Share on 𝕏</a>
+        <a href="https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedInText)}" target="_blank" class="share-btn">Share on LinkedIn</a>
       </div>
     `;
 
