@@ -260,24 +260,16 @@
 
   async function loadImages() {
     try {
-      const resp = await fetch('images/');
-      const text = await resp.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, 'text/html');
-      const links = doc.querySelectorAll('a');
-      links.forEach(a => {
-        const href = a.getAttribute('href');
-        if (href && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(href)) {
-          const name = decodeURIComponent(href.replace(/.*\//, ''));
-          if (!IMAGES.includes(name)) IMAGES.push(name);
-        }
+      const resp = await fetch('images.json');
+      const files = await resp.json();
+      files.forEach(name => {
+        if (!IMAGES.includes(name)) IMAGES.push(name);
       });
     } catch (e) {}
 
     if (IMAGES.length < 2) {
       document.getElementById('setup-msg').innerHTML =
-        'Add at least 2 images to the <code>images/</code> folder, then refresh.<br>' +
-        'Tip: run <code>python3 -m http.server</code> from this folder.';
+        'Could not load images. Make sure <code>images.json</code> exists.';
       document.getElementById('back-btn').style.display = 'none';
       return;
     }
