@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Met or Not</title>
+<title>Check Met</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -276,7 +276,7 @@
 
 <button class="back-btn" id="back-btn" onclick="goBack()" disabled style="display:none">← Undo</button>
 
-<h1>Met or Not</h1>
+<h1>Check Met</h1>
 <p class="subtitle">Pick your favorite. Last one standing wins.</p>
 <p class="progress" id="progress"></p>
 
@@ -479,7 +479,11 @@
         img,
         wins: img === winner ? (roundSurvived[img] || 0) + 1 : roundSurvived[img] || 0
       }))
-      .sort((a, b) => b.wins - a.wins)
+      .sort((a, b) => {
+        if (a.img === winner) return -1;
+        if (b.img === winner) return 1;
+        return b.wins - a.wins;
+      })
       .slice(0, topN);
 
     const container = document.getElementById('rankings');
